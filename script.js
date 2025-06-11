@@ -170,7 +170,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if user setup is needed
     setTimeout(() => {
         checkUserSetup();
-    }, 500);
+    }, 300);
+    
+    // Always ensure the main app is accessible
+    setTimeout(() => {
+        const mainContainer = document.querySelector('.neural-container');
+        const userSetupScreen = document.getElementById('userSetupScreen');
+        
+        if (mainContainer) {
+            mainContainer.style.display = 'flex';
+        }
+    }, 100);
 });
 
 function initializeSplashScreen() {

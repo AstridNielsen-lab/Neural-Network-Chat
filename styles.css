@@ -1451,14 +1451,38 @@ body::before {
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+    .neural-main {
+        grid-template-columns: 1fr 350px;
+        gap: 0.5rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .neural-main {
         grid-template-columns: 1fr;
         grid-template-rows: 1fr auto;
+        gap: 0.5rem;
     }
     
     .logs-panel {
-        max-height: 300px;
+        max-height: 250px;
+        order: 2;
+    }
+    
+    .chat-panel {
+        order: 1;
+    }
+    
+    .chat-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .chat-controls {
+        justify-content: center;
+        flex-wrap: wrap;
     }
 }
 
@@ -1482,10 +1506,118 @@ body::before {
     
     .chat-messages {
         max-height: calc(100vh - 350px);
+        padding: 0.5rem;
+        font-size: 0.9rem;
     }
     
     .logs-container {
         max-height: 200px;
+        font-size: 0.7rem;
+    }
+    
+    .message-content {
+        padding: 0.8rem;
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+    
+    .user-message .message-content {
+        margin-left: 0.5rem;
+    }
+    
+    .ai-message .message-content {
+        margin-right: 0.5rem;
+    }
+    
+    .send-button {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .chat-input-container {
+        padding: 0.8rem;
+    }
+    
+    #chatInput {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .neural-title {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .neural-title h1 {
+        font-size: 1rem;
+    }
+    
+    .neural-icon {
+        font-size: 1.5rem;
+    }
+    
+    .chat-header {
+        padding: 0.8rem;
+    }
+    
+    .chat-header h2 {
+        font-size: 1rem;
+    }
+    
+    .chat-controls {
+        justify-content: space-between;
+        gap: 0.3rem;
+    }
+    
+    .control-button {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .chat-status {
+        display: none;
+    }
+    
+    .input-wrapper {
+        gap: 0.3rem;
+    }
+    
+    .send-button {
+        padding: 0.6rem;
+        min-width: 60px;
+    }
+    
+    .send-button span:first-child {
+        display: none;
+    }
+    
+    .logs-panel {
+        max-height: 150px;
+    }
+    
+    .logs-header {
+        padding: 0.8rem;
+    }
+    
+    .neural-modules {
+        padding: 0.8rem;
+    }
+    
+    .module {
+        padding: 0.3rem;
+        font-size: 0.8rem;
+    }
+    
+    .module-name {
+        font-size: 0.7rem;
     }
 }
 
