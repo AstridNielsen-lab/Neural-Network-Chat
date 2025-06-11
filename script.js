@@ -72,6 +72,10 @@ let chatHistory = [];
 let isProcessing = false;
 let logsPaused = false;
 let conversationContext = [];
+let currentUser = null;
+let currentConversationId = null;
+let chatHistoryData = [];
+let userSetupComplete = false;
 
 // DOM Elements
 const chatMessages = document.getElementById('chatMessages');
@@ -87,12 +91,10 @@ let splashComplete = false;
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
-    initializeSplashScreen();
+    // Check if user setup is needed
     setTimeout(() => {
-        initializeApp();
-        setupEventListeners();
-        startSystemLogs();
-    }, 100);
+        checkUserSetup();
+    }, 500);
 });
 
 function initializeSplashScreen() {
@@ -494,14 +496,488 @@ window.addEventListener('unhandledrejection', (e) => {
     addLogEntry('SISTEMA', `Erro assíncrono: ${e.reason}`, 'error');
 });
 
+// ================================
+// USER MANAGEMENT & LOCAL STORAGE
+// ================================
+
+// Check if user setup is needed
+function checkUserSetup() {
+    const userData = getUserData();
+    
+    if (!userData || !userData.name) {
+        showUserSetupScreen();
+    } else {
+        currentUser = userData;
+        userSetupComplete = true;
+        loadChatHistory();
+        initializeSplashScreen();
+        setTimeout(() => {
+            initializeApp();
+            setupEventListeners();
+            setupHistoryListeners();
+            startSystemLogs();
+            updateUserWelcome();
+        }, 100);
+    }
+}
+
+// Show user setup screen
+function showUserSetupScreen() {
+    const userSetupScreen = document.getElementById('userSetupScreen');
+    const splashScreen = document.getElementById('splashScreen');
+    
+    if (splashScreen) {
+        splashScreen.style.display = 'none';
+    }
+    
+    if (userSetupScreen) {
+        userSetupScreen.style.display = 'flex';
+        setupUserSetupListeners();
+    }
+}
+
+// Setup user setup event listeners
+function setupUserSetupListeners() {
+    const saveUserDataBtn = document.getElementById('saveUserData');
+    const continueAsGuestBtn = document.getElementById('continueAsGuest');
+    const userNameInput = document.getElementById('userName');
+    
+    if (saveUserDataBtn) {
+        saveUserDataBtn.addEventListener('click', saveUserAndContinue);
+    }
+    
+    if (continueAsGuestBtn) {
+        continueAsGuestBtn.addEventListener('click', continueAsGuest);
+    }
+    
+    if (userNameInput) {
+        userNameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                saveUserAndContinue();
+            }
+        });
+        
+        // Focus on input
+        setTimeout(() => userNameInput.focus(), 100);
+    }
+}
+
+// Save user data and continue
+function saveUserAndContinue() {
+    const userNameInput = document.getElementById('userName');
+    const userName = userNameInput.value.trim();
+    
+    if (!userName) {
+        userNameInput.style.borderColor = 'var(--neon-red)';
+        userNameInput.focus();
+        return;
+    }
+    
+    const userData = {
+        name: userName,
+        createdAt: new Date().toISOString(),
+        isGuest: false
+    };
+    
+    saveUserData(userData);
+    currentUser = userData;
+    userSetupComplete = true;
+    
+    hideUserSetupScreen();
+}
+
+// Continue as guest
+function continueAsGuest() {
+    const userData = {
+        name: 'Visitante',
+        createdAt: new Date().toISOString(),
+        isGuest: true
+    };
+    
+    currentUser = userData;
+    userSetupComplete = true;
+    
+    hideUserSetupScreen();
+}
+
+// Hide user setup screen and start app
+function hideUserSetupScreen() {
+    const userSetupScreen = document.getElementById('userSetupScreen');
+    
+    if (userSetupScreen) {
+        userSetupScreen.classList.add('hidden');
+        setTimeout(() => {
+            userSetupScreen.style.display = 'none';
+            loadChatHistory();
+            initializeSplashScreen();
+            setTimeout(() => {
+                initializeApp();
+                setupEventListeners();
+                setupHistoryListeners();
+                startSystemLogs();
+                updateUserWelcome();
+            }, 100);
+        }, 800);
+    }
+}
+
+// ================================
+// LOCAL STORAGE FUNCTIONS
+// ================================
+
+// Get user data from localStorage
+function getUserData() {
+    try {
+        const userData = localStorage.getItem('neuralchat_user');
+        return userData ? JSON.parse(userData) : null;
+    } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error);
+        return null;
+    }
+}
+
+// Save user data to localStorage
+function saveUserData(userData) {
+    try {
+        localStorage.setItem('neuralchat_user', JSON.stringify(userData));
+    } catch (error) {
+        console.error('Erro ao salvar dados do usuário:', error);
+    }
+}
+
+// Get chat history from localStorage
+function getChatHistoryData() {
+    try {
+        const historyData = localStorage.getItem('neuralchat_history');
+        return historyData ? JSON.parse(historyData) : [];
+    } catch (error) {
+        console.error('Erro ao carregar histórico de conversas:', error);
+        return [];
+    }
+}
+
+// Save chat history to localStorage
+function saveChatHistoryData(historyData) {
+    try {
+        localStorage.setItem('neuralchat_history', JSON.stringify(historyData));
+    } catch (error) {
+        console.error('Erro ao salvar histórico de conversas:', error);
+    }
+}
+
+// ================================
+// CHAT HISTORY MANAGEMENT
+// ================================
+
+// Load chat history
+function loadChatHistory() {
+    chatHistoryData = getChatHistoryData();
+    updateHistoryDisplay();
+}
+
+// Create new conversation
+function createNewConversation() {
+    if (conversationContext.length > 0) {
+        saveCurrentConversation();
+    }
+    
+    // Clear current conversation
+    conversationContext = [];
+    currentConversationId = generateConversationId();
+    
+    // Clear chat messages (keep system message)
+    clearChatMessages();
+    addSystemMessage('🔄 Nova conversa iniciada');
+    
+    addLogEntry('SISTEMA', 'Nova conversa criada', 'info');
+}
+
+// Save current conversation
+function saveCurrentConversation() {
+    if (conversationContext.length === 0) return;
+    
+    const conversationData = {
+        id: currentConversationId || generateConversationId(),
+        title: generateConversationTitle(),
+        messages: [...conversationContext],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        userName: currentUser ? currentUser.name : 'Usuário',
+        messageCount: conversationContext.length
+    };
+    
+    // Check if conversation already exists
+    const existingIndex = chatHistoryData.findIndex(conv => conv.id === conversationData.id);
+    
+    if (existingIndex >= 0) {
+        // Update existing conversation
+        chatHistoryData[existingIndex] = conversationData;
+    } else {
+        // Add new conversation
+        chatHistoryData.unshift(conversationData);
+    }
+    
+    // Limit to 50 conversations
+    if (chatHistoryData.length > 50) {
+        chatHistoryData = chatHistoryData.slice(0, 50);
+    }
+    
+    saveChatHistoryData(chatHistoryData);
+    updateHistoryDisplay();
+}
+
+// Load conversation
+function loadConversation(conversationId) {
+    const conversation = chatHistoryData.find(conv => conv.id === conversationId);
+    
+    if (!conversation) {
+        addLogEntry('SISTEMA', 'Conversa não encontrada', 'error');
+        return;
+    }
+    
+    // Save current conversation if it has messages
+    if (conversationContext.length > 0) {
+        saveCurrentConversation();
+    }
+    
+    // Load conversation
+    conversationContext = [...conversation.messages];
+    currentConversationId = conversationId;
+    
+    // Clear and rebuild chat messages
+    clearChatMessages();
+    addSystemMessage(`🔄 Conversa "${conversation.title}" carregada`);
+    
+    // Rebuild chat from conversation context
+    conversationContext.forEach(message => {
+        if (message.role === 'user') {
+            const messageElement = createMessageElement('USUÁRIO', message.content, 'Histórico', 'user-message');
+            chatMessages.appendChild(messageElement);
+        } else if (message.role === 'assistant') {
+            const messageElement = createMessageElement('IA CENTRAL', message.content, 'Histórico', 'ai-message');
+            chatMessages.appendChild(messageElement);
+        }
+    });
+    
+    scrollToBottom(chatMessages);
+    updateHistoryDisplay();
+    addLogEntry('SISTEMA', `Conversa "${conversation.title}" carregada`, 'success');
+}
+
+// Delete conversation
+function deleteConversation(conversationId) {
+    if (confirm('Tem certeza que deseja excluir esta conversa?')) {
+        chatHistoryData = chatHistoryData.filter(conv => conv.id !== conversationId);
+        saveChatHistoryData(chatHistoryData);
+        updateHistoryDisplay();
+        
+        if (currentConversationId === conversationId) {
+            createNewConversation();
+        }
+        
+        addLogEntry('SISTEMA', 'Conversa excluída', 'info');
+    }
+}
+
+// Clear all history
+function clearAllHistory() {
+    if (confirm('Tem certeza que deseja excluir TODAS as conversas? Esta ação não pode ser desfeita.')) {
+        chatHistoryData = [];
+        saveChatHistoryData(chatHistoryData);
+        updateHistoryDisplay();
+        createNewConversation();
+        addLogEntry('SISTEMA', 'Histórico completamente limpo', 'warning');
+    }
+}
+
+// Export history
+function exportHistory() {
+    const exportData = {
+        user: currentUser,
+        exportDate: new Date().toISOString(),
+        conversations: chatHistoryData
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `neural-chat-history-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    addLogEntry('SISTEMA', 'Histórico exportado com sucesso', 'success');
+}
+
+// ================================
+// UI HELPER FUNCTIONS
+// ================================
+
+// Generate conversation ID
+function generateConversationId() {
+    return 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Generate conversation title
+function generateConversationTitle() {
+    if (conversationContext.length === 0) {
+        return 'Nova Conversa';
+    }
+    
+    const firstUserMessage = conversationContext.find(msg => msg.role === 'user');
+    if (firstUserMessage) {
+        const title = firstUserMessage.content.substring(0, 30);
+        return title.length < firstUserMessage.content.length ? title + '...' : title;
+    }
+    
+    return 'Conversa sem título';
+}
+
+// Update user welcome message
+function updateUserWelcome() {
+    const userWelcome = document.getElementById('userWelcome');
+    if (userWelcome && currentUser) {
+        const greeting = currentUser.isGuest ? 'Bem-vindo, Visitante!' : `Olá, ${currentUser.name}!`;
+        userWelcome.textContent = greeting;
+    }
+}
+
+// Clear chat messages
+function clearChatMessages() {
+    const messages = chatMessages.querySelectorAll('.message:not(.system-message)');
+    messages.forEach(message => message.remove());
+}
+
+// Update history display
+function updateHistoryDisplay() {
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+    
+    if (chatHistoryData.length === 0) {
+        historyList.innerHTML = `
+            <div class="history-empty">
+                <p>📭 Nenhuma conversa salva ainda</p>
+                <p>Suas conversas aparecerão aqui automaticamente</p>
+            </div>
+        `;
+        return;
+    }
+    
+    historyList.innerHTML = '';
+    
+    chatHistoryData.forEach(conversation => {
+        const historyItem = createHistoryItem(conversation);
+        historyList.appendChild(historyItem);
+    });
+}
+
+// Create history item element
+function createHistoryItem(conversation) {
+    const isActive = currentConversationId === conversation.id;
+    const date = new Date(conversation.createdAt).toLocaleDateString('pt-BR');
+    const preview = conversation.messages.length > 0 ? 
+        conversation.messages[0].content.substring(0, 100) + '...' : 
+        'Conversa vazia';
+    
+    const historyItem = document.createElement('div');
+    historyItem.className = `history-item ${isActive ? 'active' : ''}`;
+    historyItem.innerHTML = `
+        <div class="history-item-header">
+            <div class="history-item-title">${conversation.title}</div>
+            <div class="history-item-date">${date}</div>
+        </div>
+        <div class="history-item-preview">${preview}</div>
+        <div class="history-item-stats">
+            <span>📬 ${conversation.messageCount} mensagens</span>
+            <span>👤 ${conversation.userName}</span>
+        </div>
+        <button class="history-item-delete" title="Excluir conversa">🗑️</button>
+    `;
+    
+    // Add click listeners
+    historyItem.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('history-item-delete')) {
+            loadConversation(conversation.id);
+            toggleHistoryPanel(false);
+        }
+    });
+    
+    const deleteBtn = historyItem.querySelector('.history-item-delete');
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteConversation(conversation.id);
+    });
+    
+    return historyItem;
+}
+
+// Setup history panel listeners
+function setupHistoryListeners() {
+    const historyToggle = document.getElementById('historyToggle');
+    const closeHistory = document.getElementById('closeHistory');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const clearAllHistoryBtn = document.getElementById('clearAllHistory');
+    const exportHistoryBtn = document.getElementById('exportHistory');
+    
+    if (historyToggle) {
+        historyToggle.addEventListener('click', () => toggleHistoryPanel());
+    }
+    
+    if (closeHistory) {
+        closeHistory.addEventListener('click', () => toggleHistoryPanel(false));
+    }
+    
+    if (newChatBtn) {
+        newChatBtn.addEventListener('click', createNewConversation);
+    }
+    
+    if (clearAllHistoryBtn) {
+        clearAllHistoryBtn.addEventListener('click', clearAllHistory);
+    }
+    
+    if (exportHistoryBtn) {
+        exportHistoryBtn.addEventListener('click', exportHistory);
+    }
+}
+
+// Toggle history panel
+function toggleHistoryPanel(show = null) {
+    const historyPanel = document.getElementById('chatHistoryPanel');
+    if (!historyPanel) return;
+    
+    const isOpen = historyPanel.classList.contains('open');
+    const shouldShow = show !== null ? show : !isOpen;
+    
+    historyPanel.classList.toggle('open', shouldShow);
+}
+
+// Auto-save conversation periodically
+setInterval(() => {
+    if (userSetupComplete && conversationContext.length > 0) {
+        saveCurrentConversation();
+    }
+}, 30000); // Every 30 seconds
+
+// Save conversation before page unload
+window.addEventListener('beforeunload', () => {
+    if (userSetupComplete && conversationContext.length > 0) {
+        saveCurrentConversation();
+    }
+});
+
 // Export for debugging (optional)
 window.NeuralChat = {
     CONFIG,
     NEURAL_MODULES,
     chatHistory,
     conversationContext,
+    currentUser,
+    chatHistoryData,
     addLogEntry,
     updateModuleStatus,
-    simulateNeuralProcessing
+    simulateNeuralProcessing,
+    loadConversation,
+    createNewConversation,
+    saveCurrentConversation
 };
 

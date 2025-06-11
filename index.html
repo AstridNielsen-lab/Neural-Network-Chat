@@ -92,6 +92,36 @@
     <link rel="preload" href="script.js" as="script">
 </head>
 <body>
+    <!-- User Setup Screen -->
+    <div class="user-setup-screen" id="userSetupScreen">
+        <div class="setup-content">
+            <div class="setup-logo">
+                <div class="logo-brain">🧠</div>
+                <h1>Neural Network Chat</h1>
+            </div>
+            
+            <div class="setup-form">
+                <h2>🔧 Configuração Inicial</h2>
+                <p class="setup-description">Para uma experiência personalizada, informe seu nome:</p>
+                
+                <div class="input-group">
+                    <label for="userName">👤 Seu Nome:</label>
+                    <input type="text" id="userName" placeholder="Digite seu nome aqui..." maxlength="30">
+                </div>
+                
+                <div class="setup-buttons">
+                    <button id="continueAsGuest" class="btn-secondary">Continuar como Visitante</button>
+                    <button id="saveUserData" class="btn-primary">Salvar e Continuar</button>
+                </div>
+                
+                <div class="setup-info">
+                    <p>📝 Suas conversas serão salvas localmente no seu navegador</p>
+                    <p>🔒 Seus dados permanecem privados em seu dispositivo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Splash Screen -->
     <div class="splash-screen" id="splashScreen">
         <div class="splash-content">
@@ -169,10 +199,35 @@
             <!-- Chat Panel -->
             <section class="chat-panel">
                 <div class="chat-header">
-                    <h2>IA Central - Interface Principal</h2>
-                    <div class="chat-status">
-                        <span class="processing-indicator">●</span>
-                        <span>Pronto para comunicação</span>
+                    <div class="chat-title-section">
+                        <h2>IA Central - Interface Principal</h2>
+                        <div class="user-welcome" id="userWelcome">Bem-vindo!</div>
+                    </div>
+                    <div class="chat-controls">
+                        <button id="historyToggle" class="control-button">📚 Histórico</button>
+                        <button id="newChatBtn" class="control-button">💬 Nova Conversa</button>
+                        <div class="chat-status">
+                            <span class="processing-indicator">●</span>
+                            <span>Pronto para comunicação</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat History Panel -->
+                <div class="chat-history-panel" id="chatHistoryPanel">
+                    <div class="history-header">
+                        <h3>📚 Histórico de Conversas</h3>
+                        <button id="closeHistory" class="close-btn">✕</button>
+                    </div>
+                    <div class="history-controls">
+                        <button id="clearAllHistory" class="btn-danger">🗑️ Limpar Tudo</button>
+                        <button id="exportHistory" class="btn-secondary">📄 Exportar</button>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <div class="history-empty">
+                            <p>📭 Nenhuma conversa salva ainda</p>
+                            <p>Suas conversas aparecerão aqui automaticamente</p>
+                        </div>
                     </div>
                 </div>
                 
