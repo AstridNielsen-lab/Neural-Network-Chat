@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Chat - Rede Neural Interativa</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="neural-container">
+        <!-- Header -->
+        <header class="neural-header">
+            <div class="neural-title">
+                <span class="neural-icon">🧠</span>
+                <h1>Neural Network Chat</h1>
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>SISTEMA ATIVO</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="neural-main">
+            <!-- Chat Panel -->
+            <section class="chat-panel">
+                <div class="chat-header">
+                    <h2>IA Central - Interface Principal</h2>
+                    <div class="chat-status">
+                        <span class="processing-indicator">●</span>
+                        <span>Pronto para comunicação</span>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message system-message">
+                        <div class="message-header">
+                            <span class="message-author">SISTEMA</span>
+                            <span class="message-time">Inicialização</span>
+                        </div>
+                        <div class="message-content">
+                            🔗 Rede neural inicializada com sucesso<br>
+                            📡 Módulos auxiliares conectados<br>
+                            🚀 Sistema pronto para interação
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="input-wrapper">
+                        <input type="text" id="chatInput" placeholder="Digite sua mensagem para a IA Central..." />
+                        <button id="sendButton" class="send-button">
+                            <span>Enviar</span>
+                            <span class="send-icon">→</span>
+                        </button>
+                    </div>
+                    <div class="input-hint">
+                        Pressione Enter para enviar | Shift+Enter para nova linha
+                    </div>
+                </div>
+            </section>
+
+            <!-- Neural Logs Panel -->
+            <aside class="logs-panel">
+                <div class="logs-header">
+                    <h2>Logs da Rede Neural</h2>
+                    <div class="logs-controls">
+                        <button id="clearLogs" class="control-button">Limpar</button>
+                        <button id="pauseLogs" class="control-button">Pausar</button>
+                    </div>
+                </div>
+                
+                <div class="neural-modules">
+                    <div class="module-status">
+                        <div class="module" data-module="linguagem">
+                            <span class="module-icon">💬</span>
+                            <span class="module-name">IA_Linguagem</span>
+                            <span class="module-status-dot"></span>
+                        </div>
+                        <div class="module" data-module="logica">
+                            <span class="module-icon">🧮</span>
+                            <span class="module-name">IA_Lógica</span>
+                            <span class="module-status-dot"></span>
+                        </div>
+                        <div class="module" data-module="memoria">
+                            <span class="module-icon">🗃️</span>
+                            <span class="module-name">IA_Memória</span>
+                            <span class="module-status-dot"></span>
+                        </div>
+                        <div class="module" data-module="contexto">
+                            <span class="module-icon">🎯</span>
+                            <span class="module-name">IA_Contexto</span>
+                            <span class="module-status-dot"></span>
+                        </div>
+                        <div class="module" data-module="processamento">
+                            <span class="module-icon">⚡</span>
+                            <span class="module-name">IA_Processamento</span>
+                            <span class="module-status-dot"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="logs-container" id="logsContainer">
+                    <div class="log-entry system">
+                        <span class="log-time">[INIT]</span>
+                        <span class="log-module">SISTEMA</span>
+                        <span class="log-message">Inicializando rede neural...</span>
+                    </div>
+                    <div class="log-entry success">
+                        <span class="log-time">[INIT]</span>
+                        <span class="log-module">SISTEMA</span>
+                        <span class="log-message">Todos os módulos conectados com sucesso</span>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="neural-loader">
+                    <div class="loader-nodes">
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                        <div class="node"></div>
+                    </div>
+                    <div class="loader-connections"></div>
+                </div>
+                <p>Processando através da rede neural...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
