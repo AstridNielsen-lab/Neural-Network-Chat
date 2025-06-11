@@ -1,0 +1,26 @@
+{
+    "name": "Neural Network Chat - Rede Neural Interativa",
+    "short_name": "Neural Chat",
+    "description": "Interface de chat com rede neural interativa para conversação com IA avançada",
+    "start_url": "../index.html",
+    "display": "standalone",
+    "background_color": "#0a0a0a",
+    "theme_color": "#00ff41",
+    "orientation": "portrait-primary",
+    "scope": "../",
+    "lang": "pt-BR",
+    "categories": ["education", "utilities", "productivity"],
+    "icons": [
+        {
+            "src": "android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
+

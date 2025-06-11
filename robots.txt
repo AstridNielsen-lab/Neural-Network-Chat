@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://astridnielsen-lab.github.io/Neural-Network-Chat/sitemap.xml
+
+# Optimal crawling
+Crawl-delay: 1
+
+# Block access to assets that don't need indexing
+Disallow: /assets/
+Allow: /assets/og-image.png
+Allow: /assets/twitter-image.png
+Allow: /assets/whatsapp-image.png
+
