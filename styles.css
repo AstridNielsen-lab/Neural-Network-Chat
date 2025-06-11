@@ -709,6 +709,318 @@ body::before {
     }
 }
 
+/* Splash Screen Styles */
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 1;
+    transition: opacity 0.8s ease-out;
+    overflow: hidden;
+}
+
+.splash-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.splash-content {
+    text-align: center;
+    color: var(--text-primary);
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    padding: 2rem;
+    animation: splashFadeIn 1.5s ease-out;
+}
+
+.splash-logo {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.logo-brain {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: brainPulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px var(--neon-green));
+}
+
+.logo-circuit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    border: 2px solid var(--neon-blue);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: circuitRotate 4s linear infinite;
+}
+
+.logo-circuit::before,
+.logo-circuit::after {
+    content: '';
+    position: absolute;
+    border: 1px solid var(--neon-purple);
+    border-radius: 50%;
+    opacity: 0.4;
+}
+
+.logo-circuit::before {
+    width: 80px;
+    height: 80px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: circuitRotate 3s linear infinite reverse;
+}
+
+.logo-circuit::after {
+    width: 160px;
+    height: 160px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: circuitRotate 5s linear infinite;
+}
+
+.splash-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.title-neural {
+    color: var(--neon-green);
+    text-shadow: 0 0 20px var(--neon-green);
+    animation: textGlow 2s ease-in-out infinite alternate;
+}
+
+.title-network {
+    color: var(--neon-blue);
+    text-shadow: 0 0 20px var(--neon-blue);
+    animation: textGlow 2s ease-in-out infinite alternate 0.5s;
+}
+
+.title-chat {
+    color: var(--neon-purple);
+    text-shadow: 0 0 20px var(--neon-purple);
+    animation: textGlow 2s ease-in-out infinite alternate 1s;
+}
+
+.splash-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.splash-loading {
+    margin: 2rem 0;
+}
+
+.loading-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 255, 65, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-blue), var(--neon-purple));
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--neon-green);
+}
+
+.loading-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.splash-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.developer-info h3,
+.contact-quick h3,
+.version-info h3 {
+    color: var(--neon-green);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.developer-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--neon-blue);
+    margin-bottom: 0.3rem;
+    text-align: center;
+}
+
+.company-name {
+    color: var(--neon-purple);
+    font-weight: 600;
+    text-align: center;
+}
+
+.contact-quick p,
+.version-info p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0.3rem 0;
+    text-align: center;
+}
+
+.splash-footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 255, 65, 0.3);
+}
+
+.splash-footer p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.splash-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--neon-green);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: particleFloat 6s linear infinite;
+}
+
+.particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+.particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+.particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+.particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+.particle:nth-child(5) { left: 60%; animation-delay: 1.5s; }
+.particle:nth-child(6) { left: 70%; animation-delay: 2.5s; }
+.particle:nth-child(7) { left: 80%; animation-delay: 0.5s; }
+.particle:nth-child(8) { left: 90%; animation-delay: 3.5s; }
+
+/* Splash Screen Animations */
+@keyframes splashFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes brainPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 20px var(--neon-green));
+    }
+    50% {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 30px var(--neon-green));
+    }
+}
+
+@keyframes circuitRotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes textGlow {
+    from { opacity: 0.8; }
+    to { opacity: 1; }
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    90% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-100vh) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Responsive Splash Screen */
+@media (max-width: 768px) {
+    .splash-content {
+        padding: 1rem;
+        max-width: 90%;
+    }
+    
+    .splash-title {
+        font-size: 2rem;
+    }
+    
+    .logo-brain {
+        font-size: 3rem;
+    }
+    
+    .splash-info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .logo-circuit {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .logo-circuit::before {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .logo-circuit::after {
+        width: 130px;
+        height: 130px;
+    }
+}
+
 ::-webkit-scrollbar-thumb:hover {
     background: var(--neon-green);
 }

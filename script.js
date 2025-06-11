@@ -82,12 +82,69 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 const clearLogsBtn = document.getElementById('clearLogs');
 const pauseLogsBtn = document.getElementById('pauseLogs');
 
+// Splash Screen Management
+let splashComplete = false;
+
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-    setupEventListeners();
-    startSystemLogs();
+    initializeSplashScreen();
+    setTimeout(() => {
+        initializeApp();
+        setupEventListeners();
+        startSystemLogs();
+    }, 100);
 });
+
+function initializeSplashScreen() {
+    const splashScreen = document.getElementById('splashScreen');
+    const loadingProgress = document.getElementById('loadingProgress');
+    const loadingText = document.getElementById('loadingText');
+    
+    if (!splashScreen || !loadingProgress || !loadingText) {
+        console.warn('Elementos da splash screen não encontrados');
+        return;
+    }
+    
+    const loadingSteps = [
+        { progress: 20, text: 'Inicializando sistema neural...' },
+        { progress: 40, text: 'Carregando módulos de IA...' },
+        { progress: 60, text: 'Conectando rede neural...' },
+        { progress: 80, text: 'Sincronizando protocolos...' },
+        { progress: 100, text: 'Sistema pronto!' }
+    ];
+    
+    let currentStep = 0;
+    
+    const updateSplash = () => {
+        if (currentStep < loadingSteps.length) {
+            const step = loadingSteps[currentStep];
+            loadingProgress.style.width = step.progress + '%';
+            loadingText.textContent = step.text;
+            currentStep++;
+            
+            setTimeout(updateSplash, 800);
+        } else {
+            // Splash screen completa - aguardar um pouco e então esconder
+            setTimeout(() => {
+                hideSplashScreen();
+            }, 1000);
+        }
+    };
+    
+    // Iniciar o processo de loading
+    setTimeout(updateSplash, 500);
+}
+
+function hideSplashScreen() {
+    const splashScreen = document.getElementById('splashScreen');
+    if (splashScreen) {
+        splashScreen.classList.add('fade-out');
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+            splashComplete = true;
+        }, 800);
+    }
+}
 
 function initializeApp() {
     addSystemMessage('🤖 IA Central inicializada e pronta para interação');
