@@ -688,8 +688,19 @@ function saveUserAndContinue() {
     if (!userName) {
         userNameInput.style.borderColor = 'var(--neon-red)';
         userNameInput.focus();
+        showInputError('Por favor, digite seu nome para continuar');
         return;
     }
+    
+    if (userName.length < 2) {
+        userNameInput.style.borderColor = 'var(--neon-red)';
+        userNameInput.focus();
+        showInputError('O nome deve ter pelo menos 2 caracteres');
+        return;
+    }
+    
+    // Show success feedback
+    showInputSuccess(`Bem-vindo, ${userName}! Abrindo interface...`);
     
     const userData = {
         name: userName,
@@ -701,7 +712,10 @@ function saveUserAndContinue() {
     currentUser = userData;
     userSetupComplete = true;
     
-    hideUserSetupScreen();
+    // Wait a moment for user to see the success message, then open interface
+    setTimeout(() => {
+        hideUserSetupScreen();
+    }, 1500);
 }
 
 // Continue as guest
@@ -721,19 +735,44 @@ function continueAsGuest() {
 // Hide user setup screen and start app
 function hideUserSetupScreen() {
     const userSetupScreen = document.getElementById('userSetupScreen');
+    const neuralContainer = document.querySelector('.neural-container');
     
     if (userSetupScreen) {
         userSetupScreen.classList.add('hidden');
+        
+        // Make sure the main interface is ready to display
+        if (neuralContainer) {
+            neuralContainer.style.display = 'flex';
+            neuralContainer.style.opacity = '0';
+        }
+        
         setTimeout(() => {
             userSetupScreen.style.display = 'none';
+            
+            // Load chat history and initialize
             loadChatHistory();
+            
+            // Show splash screen with loading animation
             initializeSplashScreen();
+            
+            // Fade in the main interface gradually
+            if (neuralContainer) {
+                neuralContainer.style.transition = 'opacity 0.8s ease-in-out';
+                neuralContainer.style.opacity = '1';
+            }
+            
             setTimeout(() => {
                 initializeApp();
                 setupEventListeners();
                 setupHistoryListeners();
                 startSystemLogs();
                 updateUserWelcome();
+                
+                // Add welcome message with user's name
+                if (currentUser && !currentUser.isGuest) {
+                    addSystemMessage(`🎉 Olá ${currentUser.name}! Interface neural ativada com sucesso.`);
+                    addLogEntry('SISTEMA', `Usuário ${currentUser.name} conectado ao sistema`, 'success');
+                }
             }, 100);
         }, 800);
     }
@@ -1104,4 +1143,36 @@ window.NeuralChat = {
     createNewConversation,
     saveCurrentConversation
 };
+
+// Helper functions for user input feedback
+function showInputError(message) {
+    removeExistingFeedback();
+    const setupForm = document.querySelector('.setup-form');
+    if (setupForm) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'input-feedback error-feedback';
+        errorDiv.innerHTML = `<span style="color: var(--neon-red);">⚠️ ${message}</span>`;
+        setupForm.appendChild(errorDiv);
+        
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 3000);
+    }
+}
+
+function showInputSuccess(message) {
+    removeExistingFeedback();
+    const setupForm = document.querySelector('.setup-form');
+    if (setupForm) {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'input-feedback success-feedback';
+        successDiv.innerHTML = `<span style="color: var(--neon-green);">✅ ${message}</span>`;
+        setupForm.appendChild(successDiv);
+    }
+}
+
+function removeExistingFeedback() {
+    const existingFeedback = document.querySelectorAll('.input-feedback');
+    existingFeedback.forEach(feedback => feedback.remove());
+}
 

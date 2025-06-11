@@ -1024,6 +1024,8 @@ body::before {
 .user-setup-screen.hidden {
     opacity: 0;
     pointer-events: none;
+    transform: scale(0.95);
+    transition: opacity 0.8s ease, visibility 0.8s ease, transform 0.8s ease;
 }
 
 .setup-content {
@@ -1146,6 +1148,40 @@ body::before {
     margin: 0.5rem 0;
     color: var(--text-muted);
     font-size: 0.9rem;
+}
+
+/* Input Feedback Styles */
+.input-feedback {
+    margin-top: 15px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    animation: feedbackSlideIn 0.3s ease-out;
+}
+
+.input-feedback.error-feedback {
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid var(--neon-red);
+    box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+}
+
+.input-feedback.success-feedback {
+    background: rgba(0, 255, 65, 0.1);
+    border: 1px solid var(--neon-green);
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+@keyframes feedbackSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Chat History Panel Styles */
