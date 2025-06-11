@@ -76,6 +76,79 @@ let currentUser = null;
 let currentConversationId = null;
 let chatHistoryData = [];
 let userSetupComplete = false;
+let speechEnabled = true;
+let currentSpeech = null;
+const speechSynthesis = window.speechSynthesis;
+let speechVoices = [];
+
+function loadSpeechVoices() {
+    speechVoices = speechSynthesis.getVoices();
+    if (!speechVoices.length) {
+        speechSynthesis.onvoiceschanged = () => {
+            speechVoices = speechSynthesis.getVoices();
+        };
+    }
+}
+
+function speakMessage(message) {
+    if (!speechEnabled || !speechSynthesis) return;
+    
+    // Stop any current speech
+    speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    // Configure voice settings
+    const portugueseVoice = speechVoices.find(voice => 
+        voice.lang.startsWith('pt') || 
+        voice.lang.includes('BR') || 
+        voice.name.toLowerCase().includes('brazil')
+    );
+    
+    if (portugueseVoice) {
+        utterance.voice = portugueseVoice;
+    }
+    
+    utterance.rate = 0.9; // Slightly slower for better understanding
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    
+    // Event listeners
+    utterance.onstart = () => {
+        addLogEntry('SISTEMA', 'Iniciando leitura em voz alta', 'info');
+    };
+    
+    utterance.onend = () => {
+        addLogEntry('SISTEMA', 'Leitura em voz alta concluída', 'success');
+    };
+    
+    utterance.onerror = (event) => {
+        addLogEntry('SISTEMA', `Erro na síntese de voz: ${event.error}`, 'error');
+    };
+    
+    speechSynthesis.speak(utterance);
+}
+
+// Toggle speech on/off
+function toggleSpeech() {
+    speechEnabled = !speechEnabled;
+    const speechToggleBtn = document.getElementById('speechToggle');
+    
+    if (speechToggleBtn) {
+        if (speechEnabled) {
+            speechToggleBtn.textContent = '🔊 Voz Ativa';
+            speechToggleBtn.classList.add('speech-enabled');
+            speechToggleBtn.classList.remove('speech-disabled');
+            addLogEntry('SISTEMA', 'Leitura em voz alta ativada', 'success');
+        } else {
+            speechToggleBtn.textContent = '🔇 Voz Desativada';
+            speechToggleBtn.classList.remove('speech-enabled');
+            speechToggleBtn.classList.add('speech-disabled');
+            speechSynthesis.cancel(); // Stop any current speech
+            addLogEntry('SISTEMA', 'Leitura em voz alta desativada', 'info');
+        }
+    }
+}
 
 // DOM Elements
 const chatMessages = document.getElementById('chatMessages');
@@ -91,6 +164,9 @@ let splashComplete = false;
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize speech synthesis
+    loadSpeechVoices();
+    
     // Check if user setup is needed
     setTimeout(() => {
         checkUserSetup();
@@ -229,12 +305,39 @@ async function sendMessage() {
 }
 
 async function getGeminiResponse(userMessage) {
+    const julioPersona = `Você é o Dr. Julio Campos Machado, um renomado especialista em inteligência artificial, redes neurais, robótica e física quântica. 
+    
+    PERFIL PROFISSIONAL:
+    - PhD em Inteligência Artificial e Física Quântica
+    - Pesquisador sênior em redes neurais profundas e computação quântica
+    - Desenvolvedor de sistemas de IA avançados e interfaces neurais
+    - Especialista em machine learning, deep learning e quantum computing
+    - Autor de artigos científicos sobre consciência artificial e computação neuromorphic
+    
+    PERSONALIDADE:
+    - Responde de forma extremamente inteligente e intelectual
+    - Usa terminologia técnica precisa quando apropriado
+    - Explica conceitos complexos de forma clara e didática
+    - Demonstra paixão genuína pela ciência e tecnologia
+    - Mantém um tom professoral mas acessível
+    - Faz conexões interdisciplinares entre física quântica, neurociência e IA
+    - Gosta de usar analogias científicas para explicar conceitos
+    
+    ESTILO DE COMUNICAÇÃO:
+    - Inicia respostas com reflexões científicas quando relevante
+    - Usa exemplos práticos da física quântica e neurociência
+    - Menciona descobertas recentes e implications futuras
+    - Demonstra curiosidade intelectual genuína
+    - Equilibra rigor científico com comunicação clara
+    
+    Como Dr. Julio Campos Machado, responda à seguinte pergunta de forma intelectual, científica e envolvente:`;
+    
     const payload = {
         contents: [
             {
                 parts: [
                     {
-                        text: `Você é uma IA avançada fazendo parte de uma rede neural complexa. Responda de forma inteligente, útil e envolvente. Mensagem do usuário: ${userMessage}`
+                        text: `${julioPersona}\n\nPergunta do usuário: ${userMessage}`
                     }
                 ]
             }
@@ -332,6 +435,11 @@ async function addAIMessage(message) {
     
     // Type the message with animation
     await typeMessage(contentDiv, message);
+    
+    // Read message aloud if speech is enabled
+    if (speechEnabled) {
+        speakMessage(message);
+    }
     
     addLogEntry('IA_CENTRAL', 'Resposta enviada para o usuário', 'success');
 }
@@ -937,6 +1045,12 @@ function setupHistoryListeners() {
     
     if (exportHistoryBtn) {
         exportHistoryBtn.addEventListener('click', exportHistory);
+    }
+    
+    // Speech toggle button
+    const speechToggleBtn = document.getElementById('speechToggle');
+    if (speechToggleBtn) {
+        speechToggleBtn.addEventListener('click', toggleSpeech);
     }
 }
 

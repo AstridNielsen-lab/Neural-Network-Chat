@@ -1339,6 +1339,35 @@ body::before {
     background: rgba(0, 150, 255, 0.1);
 }
 
+/* Speech Control Button Styles */
+.control-button.speech-enabled {
+    background: linear-gradient(45deg, #00ff88, #00aa55);
+    color: #000;
+    font-weight: bold;
+    border: 2px solid #00ff88;
+}
+
+.control-button.speech-enabled:hover {
+    background: linear-gradient(45deg, #00aa55, #007733);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+    border-color: #00ff88;
+}
+
+.control-button.speech-disabled {
+    background: linear-gradient(45deg, #ff6b6b, #cc4444);
+    color: #fff;
+    font-weight: bold;
+    border: 2px solid #ff6b6b;
+}
+
+.control-button.speech-disabled:hover {
+    background: linear-gradient(45deg, #cc4444, #992222);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    border-color: #ff6b6b;
+}
+
 .user-welcome {
     color: var(--neon-green);
     font-size: 0.9rem;
